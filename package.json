@@ -1,0 +1,52 @@
+{
+	"name": "vscode-pyolite",
+	"displayName": "vscode-pyolite",
+	"description": "Run Python code in VS Code notebooks",
+	"version": "0.0.8",
+	"author": {
+		"name": "joyceerhl"
+	},
+	"preview": true,
+	"publisher": "joyceerhl",
+	"enableProposedApi": true,
+	"license": "MIT",
+	"repository": {
+		"url": "https://github.com/joyceerhl/vscode-pyolite"
+	},
+	"extensionKind": [
+		"ui",
+		"workspace"
+	],
+	"engines": {
+		"vscode": "^1.57.0-insider"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onNotebook:*"
+	],
+	"main": "./out/extension/extension.js",
+	"contributes": {},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"lint": "eslint src --ext ts",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"updatetypes": "cd src/extension/types && vscode-dts dev && vscode-dts master",
+		"postinstall": "npm run updatetypes"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.1",
+		"@types/mocha": "^7.0.2",
+		"@types/node": "^13.11.0",
+		"@typescript-eslint/eslint-plugin": "^2.30.0",
+		"@typescript-eslint/parser": "^2.30.0",
+		"eslint": "^6.8.0",
+		"glob": "^7.1.6",
+		"mocha": "^7.1.2",
+		"typescript": "^3.8.3",
+		"vscode-dts": "^0.3.1"
+	}
+}

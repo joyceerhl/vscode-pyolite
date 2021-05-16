@@ -1,0 +1,8 @@
+pyolite/__init__.py,sha256=k9R6bdcp9d3TtWtc1nyMIqydJpjVnK9zMcQOadZId24,232
+pyolite/display.py,sha256=CQ5TiIR5EyMtaEAmC0LZH-7C59RFGr90mrFV-gDXva4,1548
+pyolite/interpreter.py,sha256=HhH1xc1Dtvi3mWoYpFp7bVVlPti58lyEoGehonXoypY,703
+pyolite/kernel.py,sha256=jcvpTirH7PTXd040xV8DHsFnIibcqlZ2sZ1bC7K7ULY,209
+pyolite/patches.py,sha256=KQM7J7tLD-wibu0T8qEQI_KLLD9OV3DyUQ3GX0qKcSI,418
+pyolite-0.1.0.dist-info/WHEEL,sha256=o-Q2E8s7BKkCJ1EC2uQdaymZVVu2aUt1e8uTTFpzHVs,81
+pyolite-0.1.0.dist-info/METADATA,sha256=VuPl5SecJvItLCxCtS9YAFyQjL-wsuyYzOqJaAHbqfQ,198
+pyolite-0.1.0.dist-info/RECORD,,
