@@ -3,9 +3,18 @@ import { EXTENSION_ID, JUPYTER_NOTEBOOK_VIEWTYPE, PYTHON_EXTENSION_ID } from './
 import { createNotebookCellOutput } from './utils';
 
 const disposables: vscode.Disposable[] = [];
+let kernelStatusBar: vscode.StatusBarItem;
+
+enum KernelStatus {
+  NotStarted = 'Not Started',
+  Starting = 'Starting...',
+  Busy = 'Busy',
+  Idle = 'Idle',
+  Disposed = 'Disposed'
+}
 
 export async function activate(context: vscode.ExtensionContext) {
-  // Use renderer preloads to load Pyodide scripts
+  // Use renderer preloads to load Pyodide scripts. Ideally we would load these in a dedicated web worker
   const scripts = ['loadPyodide.js', 'pyodideComm.js'].map((filename) => new vscode.NotebookRendererScript(vscode.Uri.joinPath(context.extensionUri, 'scripts', filename)));
 
   // Tell VS Code about our kernel. For now this is global
@@ -25,6 +34,15 @@ export async function activate(context: vscode.ExtensionContext) {
     }
   }));
 
+  // Create a status bar item to report kernel status
+  kernelStatusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
+  kernelStatusBar.text = `Pyolite: ${KernelStatus.NotStarted}`;
+
+  // Ensure we only show our status bar item when the Pyolite kernel is selected
+  disposables.push(controller.onDidChangeSelectedNotebooks(({ notebook, selected }) =>
+    selected ? kernelStatusBar.show() : kernelStatusBar.hide()
+  ));
+
   await optIntoNativeNotebooks();
 }
 
@@ -34,18 +52,23 @@ export function deactivate() {
 
 async function ensureKernel(controller: vscode.NotebookController) {
   const kernelResolvedPromise = new Promise<void>((resolve, reject) => {
-    // Reject after 60 seconds so we don't wait forever
-    setTimeout(() => {
-      reject();
-    }, 60_000);
+    // Transition status bar to starting
+    kernelStatusBar.text = `Pyolite: ${KernelStatus.Starting}`;
 
     // As soon as we get some messages from the renderer preload script,
     // we're good to go
-    disposables.push(controller.onDidReceiveMessage(() => {
-      resolve();
+    disposables.push(controller.onDidReceiveMessage(({ editor, message }) => {
+      switch (message) {
+        case 'dead':
+          kernelStatusBar.text = `Pyolite: ${KernelStatus.Disposed}`;
+          reject('Pyolite kernel failed to start.');
+        default:
+          kernelStatusBar.text = `Pyolite: ${KernelStatus.Idle}`;
+          resolve();
+      }
     }));
 
-    // Ping the kernel for good measure
+    // Ping the kernel just to confirm it's started
     controller.postMessage({ command: 'heartbeat' });
   });
 
@@ -62,14 +85,6 @@ async function handleExecute(
   for (let cell of cells) {
     // Create our cell execution task to transition the cell to the busy state
     const task = controller.createNotebookCellExecution(cell);
-
-    // Don't send execute requests until the kernel is ready.
-    // Display progress indicator in status bar while kernel is starting up.
-    await vscode.window.withProgress({
-      location: vscode.ProgressLocation.Window,
-      title: 'Starting Pyolite kernel...'
-    }, async () => ensureKernel(controller));
-
     let success = false;
     let result;
 
@@ -78,16 +93,20 @@ async function handleExecute(
 
     // Send our code execution request to the kernel
     try {
+      // Don't send execute requests until the kernel is ready
+      await ensureKernel(controller);
+
+      // If the kernel successfully started, send our execute request
+      kernelStatusBar.text = `Pyolite: ${KernelStatus.Busy}`;
       result = await executeCell(controller, cell);
       success = true;
+      kernelStatusBar.text = `Pyolite: ${KernelStatus.Idle}`;
     } catch (e) {
       result = e;
     }
 
     // Update notebook cell output with result from kernel execution
-    if (result !== undefined) {
-      await updateCellOutput(cell, task, result);
-    }
+    await updateCellOutput(cell, task, result);
 
     // Now tell VS Code we're done with this cell
     task.end(success, Date.now());
@@ -99,11 +118,16 @@ async function updateCellOutput(
   task: vscode.NotebookCellExecution,
   result: any
 ) {
-  const data = result.hasOwnProperty('data')
-    ? result.data
-    : { 'text/plain': result };
-  const output = createNotebookCellOutput(data);
-  await task.replaceOutput(output, cell);
+  // Remove any outputs left over from previous execution
+  await task.clearOutput(cell);
+
+  if (result !== undefined) {
+    const data = result.hasOwnProperty('data')
+      ? result.data
+      : { 'text/plain': result };
+    const output = createNotebookCellOutput(data);
+    await task.replaceOutput(output, cell);
+  }
 }
 
 async function executeCell(controller: vscode.NotebookController, cell: vscode.NotebookCell) {
@@ -117,6 +141,9 @@ async function executeCell(controller: vscode.NotebookController, cell: vscode.N
           resolve(message.args);
         case 'error':
           reject(message?.args);
+        case 'dead':
+          kernelStatusBar.text = `Pyolite: ${KernelStatus.Disposed}`;
+          reject('Pyolite kernel failed to start.');
         default:
           reject('Unhandled message.');
       }

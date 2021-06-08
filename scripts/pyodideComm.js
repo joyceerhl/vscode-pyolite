@@ -33,20 +33,77 @@
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-var kernel;
-var interpreter;
 const PYOLITE_WHEEL = 'https://cdn.jsdelivr.net/gh/joyceerhl/vscode-pyolite@08c3997609f33a77fc018781b51e2f9034e8f8a5/bin/pyolite-0.1.0-py3-none-any.whl';
 
+let kernel;
+let interpreter;
+let kernelStarted = false;
+
+const api = acquireVsCodeApi();
+
+function stdoutCallback(stdout) {
+  console.log('stdout', stdout);
+}
+
+function stderrCallback(stderr) {
+  console.error('stderr', stderr);
+}
+
+function displayCallback(res) {
+  const bundle = formatResult(res);
+  api.postMessage(wrapMessage({
+    command: 'display',
+    args: bundle
+  }));
+}
+
 async function main() {
-  await loadPyodide({
-    indexURL : "https://cdn.jsdelivr.net/pyodide/v0.17.0/full/"
-  });
-  await pyodide.loadPackage(['matplotlib']);
-  await pyodide.runPythonAsync("import micropip");
-  await pyodide.runPythonAsync(`await micropip.install("${PYOLITE_WHEEL}")`);
-  await pyodide.runPythonAsync("import pyolite");
-  kernel = pyodide.globals.get('pyolite').kernel_instance;
-  interpreter = kernel.interpreter;
+  try {
+    await loadPyodide({
+      indexURL : "https://cdn.jsdelivr.net/pyodide/v0.17.0/full/"
+    });
+    await pyodide.loadPackage(['matplotlib']);
+    await pyodide.runPythonAsync("import micropip");
+    await pyodide.runPythonAsync(`await micropip.install("${PYOLITE_WHEEL}")`);
+    await pyodide.runPythonAsync("import pyolite");
+  
+    kernel = pyodide.globals.get('pyolite').kernel_instance;
+    interpreter = kernel.interpreter;
+  
+    interpreter.stdout_callback = stdoutCallback;
+    interpreter.stderr_callback = stderrCallback;
+    kernel.display_publisher.display_callback = displayCallback;
+
+    kernelStarted = true;
+    api.postMessage(wrapMessage({ command: 'initialized' }));
+  } catch (e) {
+    api.postMessage(wrapMessage({ command: 'dead' }));
+  }
+}
+
+async function runCode(code, retryOnError) {
+  let result;
+  try {
+    result = await interpreter.run(code);
+    result = formatResult(result);
+    api.postMessage(wrapMessage({ command: 'success', args: result }));
+  } catch (e) {
+    console.log('error', e);
+    const error = e.toString();
+    const moduleNotFoundRegex = /ModuleNotFoundError: No module named '(?<moduleName>.*)'/g;
+    const matches = moduleNotFoundRegex.exec(error);
+    // If the error is due to a missing import, auto-download it and retry
+    if (retryOnError && matches?.groups?.moduleName) {
+      try {
+        await pyodide.runPythonAsync(`await micropip.install("${matches.groups.moduleName}")`);
+        await runCode(code, false);
+      } catch (e) {
+        api.postMessage(wrapMessage({ command: 'error', args: e.toString() }));
+      }
+    } else {
+      api.postMessage(wrapMessage({ command: 'error', args: error }));
+    }
+  }
 }
 
 function mapToObject(map) {
@@ -66,55 +123,25 @@ function formatResult(res) {
   return results;
 }
 
-main().then(() => {
-  const api = acquireVsCodeApi();
-  api.postMessage(wrapMessage({ command: 'initialized' }));
-  
-  function stdoutCallback(stdout) {
-    api.postMessage(wrapMessage({ command: 'success', args: stdout }));
-  }
-  function stderrCallback(stderr) {
-    api.postMessage(wrapMessage({ command: 'error', args: stderr }));
-  }
-  function displayCallback(res) {
-    const bundle = formatResult(res);
-    api.postMessage(wrapMessage({
-      command: 'display',
-      args: bundle
-    }));
-  }
-
-  interpreter.stdout_callback = stdoutCallback;
-  interpreter.stderr_callback = stderrCallback;
-  kernel.display_publisher.display_callback = displayCallback;
-
-  let result;
-  async function runCode(code) {
-    try {
-      result = await interpreter.run(code);
-      result = formatResult(result);
-      api.postMessage(wrapMessage({ command: 'success', args: result }));
-    } catch (e) {
-      api.postMessage(wrapMessage({ command: 'error', args: e }));
-      return;
-    }
-  }
-
-  window.addEventListener('message', event => {
-    const message = event.data?.message;
-    switch (message?.command) {
-      case 'heartbeat':
-        api.postMessage(wrapMessage({ command: 'alive' }));
-        break;
-      case 'runPythonAsync':
-        runCode(message.args).then(() => {
-        });
-        break;
-      default:
-        break;
-    }
+main()
+  .then(() => {
+    window.addEventListener('message', event => {
+      if (!kernelStarted) {
+        return api.postMessage(wrapMessage({ command: 'dead' }));
+      }
+      const message = event.data?.message;
+      switch (message?.command) {
+        case 'heartbeat':
+          api.postMessage(wrapMessage({ command: 'alive' }));
+          break;
+        case 'runPythonAsync':
+          runCode(message.args, true).then(() => {});
+          break;
+        default:
+          break;
+      }
+    });
   });
-});
 
 function wrapMessage(message) {
   return {

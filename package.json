@@ -1,8 +1,8 @@
 {
 	"name": "vscode-pyolite",
 	"displayName": "vscode-pyolite",
-	"description": "Run Python code in VS Code notebooks",
-	"version": "0.0.8",
+	"description": "Run Python code in VS Code Jupyter notebooks",
+	"version": "0.0.10",
 	"author": {
 		"name": "joyceerhl"
 	},
@@ -16,6 +16,9 @@
 	"extensionKind": [
 		"ui",
 		"workspace"
+	],
+	"extensionDependencies": [
+		"ms-toolsai.jupyter"
 	],
 	"engines": {
 		"vscode": "^1.57.0-insider"
