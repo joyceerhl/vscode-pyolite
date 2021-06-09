@@ -42,8 +42,6 @@ export async function activate(context: vscode.ExtensionContext) {
   disposables.push(controller.onDidChangeSelectedNotebooks(({ notebook, selected }) =>
     selected ? kernelStatusBar.show() : kernelStatusBar.hide()
   ));
-
-  await optIntoNativeNotebooks();
 }
 
 export function deactivate() {
@@ -57,16 +55,18 @@ async function ensureKernel(controller: vscode.NotebookController) {
 
     // As soon as we get some messages from the renderer preload script,
     // we're good to go
-    disposables.push(controller.onDidReceiveMessage(({ editor, message }) => {
+    const disposable = controller.onDidReceiveMessage(({ editor, message }) => {
       switch (message) {
         case 'dead':
           kernelStatusBar.text = `Pyolite: ${KernelStatus.Disposed}`;
+          disposable.dispose();
           reject('Pyolite kernel failed to start.');
         default:
           kernelStatusBar.text = `Pyolite: ${KernelStatus.Idle}`;
+          disposable.dispose();
           resolve();
       }
-    }));
+    });
 
     // Ping the kernel just to confirm it's started
     controller.postMessage({ command: 'heartbeat' });
@@ -130,25 +130,29 @@ async function updateCellOutput(
   }
 }
 
+function hookupHandlers(controller: vscode.NotebookController, successCallback: (v: any) => void, errorCallback: (v: any) => void) {
+  const disposable = controller.onDidReceiveMessage(({ editor, message }) => {
+    switch (message?.command) {
+      case 'alive':
+        break;
+      case 'success':
+      case 'display':
+        successCallback(message.args);
+      case 'error':
+        errorCallback(message?.args);
+      case 'dead':
+        kernelStatusBar.text = `Pyolite: ${KernelStatus.Disposed}`;
+        errorCallback('Pyolite kernel failed to start.');
+      default:
+        errorCallback('Unhandled message.');
+    }
+  });
+  disposables.push(disposable);
+}
+
 async function executeCell(controller: vscode.NotebookController, cell: vscode.NotebookCell) {
   const resultPromise = new Promise(async (resolve, reject) => {
-    const disposable = controller.onDidReceiveMessage(({ editor, message }) => {
-      switch (message?.command) {
-        case 'alive':
-          break;
-        case 'success':
-        case 'display':
-          resolve(message.args);
-        case 'error':
-          reject(message?.args);
-        case 'dead':
-          kernelStatusBar.text = `Pyolite: ${KernelStatus.Disposed}`;
-          reject('Pyolite kernel failed to start.');
-        default:
-          reject('Unhandled message.');
-      }
-    });
-    disposables.push(disposable);
+    hookupHandlers(controller, resolve, reject);
 
     try {
       const message = { command: 'runPythonAsync', args: cell.document.getText() };
@@ -158,15 +162,4 @@ async function executeCell(controller: vscode.NotebookController, cell: vscode.N
     }
   });
   return await resultPromise;
-}
-
-// Ensure users get the native notebooks UI since this extension is built on top of the VS Code notebooks API
-async function optIntoNativeNotebooks() {
-  const settings = vscode.workspace.getConfiguration("jupyter", undefined);
-  const optInto = settings.get<string[]>('experiments.optInto');
-  if (!Array.isArray(optInto) || optInto.includes('All') || optInto.includes('__NativeNotebookEditor__')) {
-    return;
-  }
-  optInto.push('__NativeNotebookEditor__');
-  await settings.update('experiments.optInto', optInto, vscode.ConfigurationTarget.Global);
 }
