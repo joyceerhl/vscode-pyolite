@@ -6,7 +6,7 @@
 	"author": {
 		"name": "joyceerhl"
 	},
-  "icon": "icon.png",
+	"icon": "icon.png",
 	"preview": true,
 	"publisher": "joyceerhl",
 	"enableProposedApi": true,
@@ -26,117 +26,108 @@
 	},
 	"categories": [
 		"Data Science",
-    "Education",
-    "Machine Learning",
-    "Notebooks"
+		"Education",
+		"Machine Learning",
+		"Notebooks"
 	],
-  "keywords": [
-    "kernel",
-    "jupyter",
-    "notebook",
-    "python"
-  ],
+	"keywords": [
+		"kernel",
+		"jupyter",
+		"notebook",
+		"python"
+	],
 	"activationEvents": [
 		"onNotebook:*",
-    "onCommand:pyolite.introMatplotlib",
-    "onCommand:pyolite.introPandas",
-    "onCommand:pyolite.openAnaconda",
-    "onCommand:pyolite.openPythonExtension"
+		"onCommand:pyolite.introMatplotlib",
+		"onCommand:pyolite.introPandas",
+		"onCommand:pyolite.openAnaconda",
+		"onCommand:pyolite.openPythonExtension"
 	],
 	"main": "./out/extension/extension.js",
 	"contributes": {
-    "commands": [
-      {
-        "command": "pyolite.introPandas",
-        "title": "Open Pandas 101 Tutorial",
-        "category": "Pyolite"
-      },
-      {
-        "command": "pyolite.introMatplotlib",
-        "title": "Open Matplotlib 101 Tutorial",
-        "category": "Pyolite"
-      },
-      {
-        "command": "pyolite.openPythonExtension",
-        "title": "Install Python Extension",
-        "category": "Pyolite"
-      },
-      {
-        "command": "pyolite.openAnaconda",
-        "title": "Install Anaconda",
-        "category": "Pyolite"
-      }
-    ],
-    "menus": {
-      "commandPalette": [
-        {
-          "command": "pyolite.introPandas",
-          "category": "Pyolite",
-          "when": "false"
-        },
-        {
-          "command": "pyolite.introMatplotlib",
-          "category": "Pyolite",
-          "when": "false"
-        },
-        {
-          "command": "pyolite.openPythonExtension",
-          "category": "Pyolite",
-          "when": "false"
-        },
-        {
-          "command": "pyolite.openAnaconda",
-          "category": "Pyolite",
-          "when": "false"
-        }
-      ]
-    },
-    "walkthroughs": [
-      {
-        "id": "vscode-pyolite.gettingStarted",
-        "title": "Learn Python with Pyolite Notebooks",
-        "description": "Learn Python and data science with interactive Python tutorials in Jupyter notebooks.",
-        "steps": [
-          {
-            "id": "vscode-pyolite.create",
-            "title": "Instantly run Python code in Jupyter notebooks",
-            "description": "Get started learning Python—without installing Python. The Pyolite kernel supports over 75 Python packages, including pandas, numpy, and scikit-learn.\n[Create New Jupyter Notebook](command:jupyter.createnewnotebook)",
-            "media": {
-              "image": "images/poc.gif",
-              "altText": "Try out the Pyolite kernel in a new blank notebook!"
-            }
-          },
-          {
-            "id": "vscode-pyolite.pandas",
-            "title": "Pandas 101",
-            "description": "Learn to use Pandas to work with tabular data.\n[Start Tutorial](command:pyolite.introPandas)",
-            "media": {
-              "image": "images/poc.gif",
-              "altText": "Open Tutorial"
-            }
-          },
-          {
-            "id": "vscode-pyolite.matplotlib",
-            "title": "Matplotlib 101",
-            "description": "Learn to use Matplotlib to create data visualizations.\n[Start Tutorial](command:pyolite.introMatplotlib)",
-            "media": {
-              "image": "images/poc.gif",
-              "altText": "Open Tutorial"
-            }
-          },
-          {
-            "id": "vscode-pyolite.setup",
-            "title": "Set up your local Python environment",
-            "description": "The Pyolite kernel helps you quickly get started with Python and Jupyter notebooks.\nFor the best Python experience in VS Code, we recommend installing the Python extension:\n[Install Python extension](command:pyolite.openPythonExtension)\nAnd a Python environment from Anaconda:\n[Install Anaconda](command:pyolite.openAnaconda)\n",
-            "media": {
-              "image": "images/poc.gif",
-              "altText": "Try out the Pyolite kernel in a new blank notebook!"
-            }
-          }
-        ]
-      }
-    ]
-  },
+		"commands": [
+			{
+				"command": "pyolite.introPandas",
+				"title": "Open Pandas 101 Tutorial",
+				"category": "Pyolite"
+			},
+			{
+				"command": "pyolite.introMatplotlib",
+				"title": "Open Matplotlib 101 Tutorial",
+				"category": "Pyolite"
+			},
+			{
+				"command": "pyolite.openPythonExtension",
+				"title": "Install Python Extension",
+				"category": "Pyolite"
+			},
+			{
+				"command": "pyolite.openAnaconda",
+				"title": "Install Anaconda",
+				"category": "Pyolite"
+			}
+		],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "pyolite.introPandas",
+					"category": "Pyolite",
+					"when": "false"
+				},
+				{
+					"command": "pyolite.introMatplotlib",
+					"category": "Pyolite",
+					"when": "false"
+				},
+				{
+					"command": "pyolite.openPythonExtension",
+					"category": "Pyolite",
+					"when": "false"
+				},
+				{
+					"command": "pyolite.openAnaconda",
+					"category": "Pyolite",
+					"when": "false"
+				}
+			]
+		},
+		"walkthroughs": [
+			{
+				"id": "vscode-pyolite.gettingStarted",
+				"title": "Learn Python with Pyolite Notebooks",
+				"description": "Learn Python and data science with interactive Python tutorials in Jupyter notebooks.",
+				"steps": [
+					{
+						"id": "vscode-pyolite.create",
+						"title": "Instantly run Python code in Jupyter notebooks",
+						"description": "Get started learning Python—without installing Python. The Pyolite kernel supports over 75 Python packages, including pandas, numpy, and scikit-learn.\n[Create New Jupyter Notebook](command:jupyter.createnewnotebook)",
+						"media": {
+							"image": "images/demo.gif",
+							"altText": "Try out the Pyolite kernel in a new blank notebook!"
+						}
+					},
+					{
+						"id": "vscode-pyolite.matplotlib",
+						"title": "Matplotlib 101",
+						"description": "Learn to use Matplotlib to create data visualizations.\n[Start Tutorial](command:pyolite.introMatplotlib)",
+						"media": {
+							"image": "images/matplotlib.gif",
+							"altText": "Open Tutorial"
+						}
+					},
+					{
+						"id": "vscode-pyolite.setup",
+						"title": "Set up your local Python environment",
+						"description": "The Pyolite kernel helps you quickly get started with Python and Jupyter notebooks.\nFor the best Python experience in VS Code, we recommend installing the Python extension:\n[Install Python extension](command:pyolite.openPythonExtension)\nAnd a Python environment from Anaconda:\n[Install Anaconda](command:pyolite.openAnaconda)\n",
+						"media": {
+							"image": "images/demo.gif",
+							"altText": "Install Anaconda and the Python extension for Visual Studio Code when Pyolite no longer meets your needs."
+						}
+					}
+				]
+			}
+		]
+	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",

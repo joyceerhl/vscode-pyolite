@@ -42,7 +42,7 @@ let kernelStarted = false;
 const api = acquireVsCodeApi();
 
 function stdoutCallback(stdout) {
-  console.log('stdout', stdout);
+  api.postMessage(wrapMessage({ command: 'success', args: stdout }));
 }
 
 function stderrCallback(stderr) {
@@ -77,6 +77,7 @@ async function main() {
     kernelStarted = true;
     api.postMessage(wrapMessage({ command: 'initialized' }));
   } catch (e) {
+    console.error(e);
     api.postMessage(wrapMessage({ command: 'dead' }));
   }
 }

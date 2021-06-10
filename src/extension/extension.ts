@@ -84,6 +84,7 @@ async function ensureKernel(controller: vscode.NotebookController) {
           kernelStatusBar.text = `Pyolite: ${KernelStatus.Disposed}`;
           disposable.dispose();
           reject('Pyolite kernel failed to start.');
+          break;
         default:
           kernelStatusBar.text = `Pyolite: ${KernelStatus.Idle}`;
           disposable.dispose();
@@ -160,14 +161,14 @@ function hookupHandlers(controller: vscode.NotebookController, successCallback: 
         break;
       case 'success':
       case 'display':
-        successCallback(message.args);
+        return successCallback(message.args);
       case 'error':
-        errorCallback(message?.args);
+        return errorCallback(message?.args);
       case 'dead':
         kernelStatusBar.text = `Pyolite: ${KernelStatus.Disposed}`;
-        errorCallback('Pyolite kernel failed to start.');
+        return errorCallback('Pyolite kernel failed to start.');
       default:
-        errorCallback('Unhandled message.');
+        return errorCallback('Unhandled message.');
     }
   });
   disposables.push(disposable);
@@ -176,6 +177,8 @@ function hookupHandlers(controller: vscode.NotebookController, successCallback: 
 async function executeCell(controller: vscode.NotebookController, cell: vscode.NotebookCell) {
   const resultPromise = new Promise(async (resolve, reject) => {
     hookupHandlers(controller, resolve, reject);
+
+    setTimeout(reject, 60_000);
 
     try {
       const message = { command: 'runPythonAsync', args: cell.document.getText() };
