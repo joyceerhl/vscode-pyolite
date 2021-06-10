@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { EXTENSION_ID, JUPYTER_NOTEBOOK_VIEWTYPE, PYTHON_EXTENSION_ID } from './constants';
+import { EXTENSION_ID, JUPYTER_NOTEBOOK_VIEWTYPE, PYOLITE_ID, PYTHON_EXTENSION_ID } from './constants';
 import { createNotebookCellOutput } from './utils';
 
 const disposables: vscode.Disposable[] = [];
@@ -19,7 +19,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Tell VS Code about our kernel. For now this is global
   const controller =
-    vscode.notebooks.createNotebookController(EXTENSION_ID, JUPYTER_NOTEBOOK_VIEWTYPE, 'Pyolite', handleExecute, scripts);
+    vscode.notebooks.createNotebookController(EXTENSION_ID, JUPYTER_NOTEBOOK_VIEWTYPE, PYOLITE_ID, handleExecute, scripts);
   controller.detail = 'Run Python code without a Python interpreter installed';
   controller.supportedLanguages = ['python'];
 
@@ -42,10 +42,33 @@ export async function activate(context: vscode.ExtensionContext) {
   disposables.push(controller.onDidChangeSelectedNotebooks(({ notebook, selected }) =>
     selected ? kernelStatusBar.show() : kernelStatusBar.hide()
   ));
+
+  // Register commands
+  vscode.commands.registerCommand('pyolite.introPandas', () => {
+    const tutorialFile = vscode.Uri.joinPath(context.extensionUri, 'tutorials', 'pandas.ipynb');
+    void vscode.commands.executeCommand('vscode.open', tutorialFile).then(() => selectKernel());
+  });
+  vscode.commands.registerCommand('pyolite.introMatplotlib', () => {
+    const tutorialFile = vscode.Uri.joinPath(context.extensionUri, 'tutorials', 'matplotlib.ipynb');
+    void vscode.commands.executeCommand('vscode.open', tutorialFile).then(() => selectKernel());
+  });
+  vscode.commands.registerCommand('pyolite.openPythonExtension', () => {
+    void vscode.env.openExternal(vscode.Uri.parse('https://marketplace.visualstudio.com/items?itemName=ms-python.python'));
+  });
+  vscode.commands.registerCommand('pyolite.openAnaconda', () => {
+    void vscode.env.openExternal(vscode.Uri.parse('https://www.anaconda.com/products/individual'));
+  });
 }
 
 export function deactivate() {
   disposables.map((disposable) => disposable.dispose());
+}
+
+async function selectKernel() {
+  return vscode.commands.executeCommand('notebook.selectKernel', {
+    id: PYOLITE_ID,
+    extension: EXTENSION_ID
+  });
 }
 
 async function ensureKernel(controller: vscode.NotebookController) {
