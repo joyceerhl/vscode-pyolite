@@ -16,6 +16,6 @@ To use this extension,
 
 vscode-pyolite builds on top of:
 1. The VS Code [notebooks API](https://code.visualstudio.com/api/extension-guides/notebook)
-2. [JupyterLite](https://github.com/jtpio/jupyterlite)
+2. [JupyterLite](https://github.com/jupyterlite/jupyterlite)
 3. [Pyodide](https://pyodide.org/en/stable/development/core.html)
 4. The [Jupyter extension for VS Code](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
