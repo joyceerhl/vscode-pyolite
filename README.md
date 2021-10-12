@@ -1,20 +1,26 @@
-# Python kernel for Jupyter notebooks in Visual Studio Code
+# Pyolite kernel for Visual Studio Code
 
-No Python installed? No problem. Run Python code in [Visual Studio Code](https://code.visualstudio.com/)'s Jupyter notebooks using the Pyolite kernel.
+Python kernel for Visual Studio Code notebooks based on [JupyterLite](https://github.com/jupyterlite/jupyterlite), [Pyodide](https://pyodide.org/en/stable/development/core.html), the [Jupyter extension for VS Code](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter).
 
-<img src=https://raw.githubusercontent.com/joyceerhl/vscode-pyolite/main/images/demo.gif>
+<img src=https://raw.githubusercontent.com/joyceerhl/vscode-pyolite/main/images/pyolite.gif>
 
- ## Quick start
+# Development
 
-To use this extension,
-1. Install [VS Code Insiders](https://code.visualstudio.com/insiders).
-1. Install [this extension](https://marketplace.visualstudio.com/items?itemName=joyceerhl.vscode-pyolite).
-1. Launch VS Code Insiders from the command line using `code-insiders --enable-proposed-api=joyceerhl.vscode-pyolite`.
-1. Open or create a notebook file and start coding!
+To build the extension and test it against github.dev:
+1. `git clone https://github.com/joyceerhl/vscode-pyolite`
+2. `cd vscode-pyolite`
+2. `npm i`
+3. `npm run watch-web`
+3. In one shell, `npm run serve`
+3. In another shell, `npm run localtunnel`
+3. Click on the local URL printed as a result of running `npm run localtunnel` and click 'Click to Continue'
+3. Navigate to a repository in `github.dev`
+4. Ctrl+Shift+P > Install Web Extension > paste in the URL printed from running `npm run localtunnel`
+4. The Pyolite VS Code extension should be installed and ready for local testing! 
 
-## Acknowledgments
+# Acknowledgments
 
-vscode-pyolite builds on top of:
+This extension builds on top of:
 1. The VS Code [notebooks API](https://code.visualstudio.com/api/extension-guides/notebook)
 2. [JupyterLite](https://github.com/jupyterlite/jupyterlite)
 3. [Pyodide](https://pyodide.org/en/stable/development/core.html)

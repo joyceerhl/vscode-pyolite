@@ -1,152 +1,72 @@
 {
-	"name": "vscode-pyolite",
-	"displayName": "vscode-pyolite",
-	"description": "Run Python code in VS Code Jupyter notebooks",
-	"version": "0.0.11",
-	"author": {
-		"name": "joyceerhl"
-	},
-	"icon": "icon.png",
-	"preview": true,
-	"publisher": "joyceerhl",
-	"enableProposedApi": true,
-	"license": "MIT",
+	"name": "vscode-pyodide",
+	"displayName": "vscode-pyodide",
 	"repository": {
 		"url": "https://github.com/joyceerhl/vscode-pyolite"
 	},
-	"extensionKind": [
-		"ui",
-		"workspace"
-	],
-	"extensionDependencies": [
-		"ms-toolsai.jupyter"
-	],
+	"description": "Run Python code in Jupyter notebooks",
+	"publisher": "joyceerhl",
+	"author": "joyceerhl",
+	"preview": true,
+	"version": "0.0.9",
 	"engines": {
 		"vscode": "^1.57.0-insider"
 	},
 	"categories": [
+		"Notebooks",
 		"Data Science",
-		"Education",
 		"Machine Learning",
-		"Notebooks"
+		"Education"
 	],
-	"keywords": [
-		"kernel",
+	"tags": [
 		"jupyter",
+		"python",
 		"notebook",
-		"python"
+		"kernel",
+		"ipynb"
 	],
 	"activationEvents": [
-		"onNotebook:*",
-		"onCommand:pyolite.introMatplotlib",
-		"onCommand:pyolite.introPandas",
-		"onCommand:pyolite.openAnaconda",
-		"onCommand:pyolite.openPythonExtension"
+		"onNotebook:jupyter-notebook"
 	],
-	"main": "./out/extension/extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "pyolite.introPandas",
-				"title": "Open Pandas 101 Tutorial",
-				"category": "Pyolite"
-			},
-			{
-				"command": "pyolite.introMatplotlib",
-				"title": "Open Matplotlib 101 Tutorial",
-				"category": "Pyolite"
-			},
-			{
-				"command": "pyolite.openPythonExtension",
-				"title": "Install Python Extension",
-				"category": "Pyolite"
-			},
-			{
-				"command": "pyolite.openAnaconda",
-				"title": "Install Anaconda",
-				"category": "Pyolite"
-			}
-		],
-		"menus": {
-			"commandPalette": [
-				{
-					"command": "pyolite.introPandas",
-					"category": "Pyolite",
-					"when": "false"
-				},
-				{
-					"command": "pyolite.introMatplotlib",
-					"category": "Pyolite",
-					"when": "false"
-				},
-				{
-					"command": "pyolite.openPythonExtension",
-					"category": "Pyolite",
-					"when": "false"
-				},
-				{
-					"command": "pyolite.openAnaconda",
-					"category": "Pyolite",
-					"when": "false"
-				}
-			]
-		},
-		"walkthroughs": [
-			{
-				"id": "vscode-pyolite.gettingStarted",
-				"title": "Learn Python with Pyolite Notebooks",
-				"description": "Learn Python and data science with interactive Python tutorials in Jupyter notebooks.",
-				"steps": [
-					{
-						"id": "vscode-pyolite.create",
-						"title": "Instantly run Python code in Jupyter notebooks",
-						"description": "Get started learning Python—without installing Python. The Pyolite kernel supports over 75 Python packages, including pandas, numpy, and scikit-learn.\n[Create New Jupyter Notebook](command:jupyter.createnewnotebook)",
-						"media": {
-							"image": "images/demo.gif",
-							"altText": "Try out the Pyolite kernel in a new blank notebook!"
-						}
-					},
-					{
-						"id": "vscode-pyolite.matplotlib",
-						"title": "Matplotlib 101",
-						"description": "Learn to use Matplotlib to create data visualizations.\n[Start Tutorial](command:pyolite.introMatplotlib)",
-						"media": {
-							"image": "images/matplotlib.gif",
-							"altText": "Open Tutorial"
-						}
-					},
-					{
-						"id": "vscode-pyolite.setup",
-						"title": "Set up your local Python environment",
-						"description": "The Pyolite kernel helps you quickly get started with Python and Jupyter notebooks.\nFor the best Python experience in VS Code, we recommend installing the Python extension:\n[Install Python extension](command:pyolite.openPythonExtension)\nAnd a Python environment from Anaconda:\n[Install Anaconda](command:pyolite.openAnaconda)\n",
-						"media": {
-							"image": "images/demo.gif",
-							"altText": "Install Anaconda and the Python extension for Visual Studio Code when Pyolite no longer meets your needs."
-						}
-					}
-				]
-			}
-		]
-	},
+	"browser": "./dist/web/extension.js",
 	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
+		"test": "node ./dist/web/test/runTest.js",
+		"pretest": "npm run compile-web && tsc ./src/web/test/runTest.ts --outDir ./dist --rootDir ./src --target es6 --module commonjs",
+		"vscode:prepublish": "npm run package-web",
+		"compile-web": "webpack --config ./build/web-extension.webpack.config.js",
+		"watch-web": "webpack --watch --config ./build/web-extension.webpack.config.js",
+		"package-web": "webpack --mode production --devtool hidden-source-map --config ./build/web-extension.webpack.config.js",
 		"lint": "eslint src --ext ts",
-		"watch": "tsc -watch -p ./",
-		"pretest": "npm run compile && npm run lint",
-		"updatetypes": "cd src/extension/types && vscode-dts dev && vscode-dts master",
+		"serve": "npx serve --cors -l 5000",
+		"tunnel": "npx localtunnel -p 5000",
+		"updatetypes": "cd src/web/types && vscode-dts dev && vscode-dts master",
 		"postinstall": "npm run updatetypes"
 	},
 	"devDependencies": {
-		"@types/glob": "^7.1.1",
-		"@types/mocha": "^7.0.2",
-		"@types/node": "^13.11.0",
-		"@typescript-eslint/eslint-plugin": "^2.30.0",
-		"@typescript-eslint/parser": "^2.30.0",
-		"eslint": "^6.8.0",
+		"@types/glob": "^7.1.3",
+		"@types/mocha": "^8.0.4",
+		"@types/node": "^12.11.7",
+		"@types/trusted-types": "^1.0.6",
+		"@types/uuid": "^3.4.3",
+		"@types/webpack-env": "^1.16.0",
+		"@typescript-eslint/eslint-plugin": "^4.14.1",
+		"@typescript-eslint/parser": "^4.14.1",
+		"assert": "^2.0.0",
+		"eslint": "^7.19.0",
 		"glob": "^7.1.6",
-		"mocha": "^7.1.2",
-		"typescript": "^3.8.3",
-		"vscode-dts": "^0.3.1"
+		"mocha": "^8.2.1",
+		"process": "^0.11.10",
+		"ts-loader": "^8.0.14",
+		"typescript": "^4.1.3",
+		"vscode-dts": "^0.3.1",
+		"vscode-test": "^1.5.0",
+		"webpack": "^5.19.0",
+		"webpack-cli": "^4.4.0"
+	},
+	"dependencies": {
+		"@jupyterlab/services": "^6.1.13",
+        "@jupyterlab/coreutils": "^3.1.0",
+		"@lumino/coreutils": "^1.10.0",
+		"uuid": "^3.3.2"
 	}
 }
