@@ -8,7 +8,7 @@
 	"publisher": "joyceerhl",
 	"author": "joyceerhl",
 	"preview": true,
-	"version": "0.0.9",
+	"version": "0.0.10",
 	"engines": {
 		"vscode": "^1.57.0-insider"
 	},
@@ -65,8 +65,9 @@
 	},
 	"dependencies": {
 		"@jupyterlab/services": "^6.1.13",
-        "@jupyterlab/coreutils": "^3.1.0",
+		"@jupyterlab/coreutils": "^3.1.0",
 		"@lumino/coreutils": "^1.10.0",
+		"crypto": "1.0.1",
 		"uuid": "^3.3.2"
 	}
 }
