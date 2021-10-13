@@ -37,6 +37,7 @@ function registerNotebookController(context: vscode.ExtensionContext) {
 			handleExecute
 		);
 	controller.detail = 'Run Python code without a Python interpreter installed';
+	controller.supportedLanguages = ['python'];
 
 	// Set Pyodide kernel as the preferred kernel for Python notebooks
 	vscode.workspace.onDidOpenNotebookDocument((document) => {
