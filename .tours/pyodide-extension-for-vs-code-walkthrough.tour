@@ -1,0 +1,51 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "Pyodide extension for VS Code walkthrough",
+  "steps": [
+    {
+      "file": "src/web/extension.ts",
+      "description": "Here we instantiate a `PyoliteKernel` and register a notebook controller with VS Code.",
+      "line": 40
+    },
+    {
+      "file": "src/web/kernel/pyoliteKernel.ts",
+      "description": "This is largely the same as [JupyterLite's](https://github.com/jupyterlite/jupyterlite) [Pyolite kernel](https://github.com/jupyterlite/jupyterlite/blob/main/packages/pyolite-kernel/src/kernel.ts). Although they recently published their kernel as an [npm package](https://www.npmjs.com/package/@jupyterlite/pyolite-kernel), I can't use it as is yet because it assumes access to browser APIs like:\r\n1. [`window.URL.createObjectURL`](https://github.com/jupyterlite/jupyterlite/blob/6fdcbbe38616fced8ca59ee5b0d1ce6530765c4f/packages/pyolite-kernel/src/kernel.ts#L60)\r\n2. [`window.location.origin`](https://github.com/jupyterlite/jupyterlite/blob/6fdcbbe38616fced8ca59ee5b0d1ce6530765c4f/packages/pyolite-kernel/src/kernel.ts#L35)\r\n",
+      "line": 16
+    },
+    {
+      "file": "src/web/kernel/pyoliteKernel.ts",
+      "description": "Here we spawn a `new Worker` which loads Pyodide and packages in a separate worker context. This avoids blocking the web worker extension host (which v3 did) or blocking the UI thread (which v2 did) Here we spawn a `new Worker` which loads Pyodide and packages in a separate context. This avoids blocking the web worker extension host (which v3 did) or blocking the UI thread (which v2 did) when importing Python packages or running code 🙈\r\n\r\nh/t to VS Code team for the [LSP web extension sample](https://github.com/microsoft/vscode-extension-samples/blob/355d5851a8e87301cf814a3d20f3918cb162ff73/lsp-web-extension-sample/client/src/browserClientMain.ts#L41-L42)\r\n\r\nh/t to @jrieken and @alexdima for the [recommendation to spawn a new worker](https://github.com/microsoft/vscode/issues/128080)",
+      "line": 26
+    },
+    {
+      "file": "pyodide.js",
+      "description": "Execution requests from the web worker extension host are handled in the dedicated Pyodide web worker here.",
+      "line": 1590
+    },
+    {
+      "file": "pyodide.js",
+      "description": "Code is executed against the kernel object here. In bare-bones Pyodide, stdout actually redirects to the browser's console, which is not helpful if you want to display that output elsewhere. Here the Pyolite kernel configures callbacks to capture the results published to these channels.",
+      "line": 1504
+    },
+    {
+      "file": "src/web/kernel/baseKernel.ts",
+      "description": "Reproduced almost entirely from [JupyterLite](https://github.com/jupyterlite/jupyterlite/blob/main/packages/kernel/src/kernel.ts)--this file can go away once [@jupyterlite/pyolite-kernel](https://www.npmjs.com/package/@jupyterlite/pyolite-kernel) adds support for running in a web worker.",
+      "line": 10
+    },
+    {
+      "file": "src/web/cellExecution.ts",
+      "description": "This class handles\r\n1. Managing cell execution\r\n2. Converting Jupyter outputs to VS Code outputs\r\n3. Keeping track of outputs\r\n\r\nIt is almost completely pulled from the [Jupyter extension for VS Code](https://github.dev/microsoft/vscode-jupyter/blob/fd1d6cbbf3eee11e6ec10e8a349254ab60b7feb7/src/client/datascience/jupyter/kernels/cellExecution.ts#L103).",
+      "line": 70
+    },
+    {
+      "file": "src/web/cellExecution.ts",
+      "description": "To ensure that stdout/stderr stream outputs are added to the correct cell, we maintain `lastUsedStreamOutput` to keep track of the last used `NotebookCellOutput`. The Jupyter extension clears this property out [when the user has cleared outputs](https://github.dev/microsoft/vscode-jupyter/blob/fd1d6cbbf3eee11e6ec10e8a349254ab60b7feb7/src/client/datascience/jupyter/kernels/cellExecution.ts#L168-L177), but since `notebooks.onDidChangeCellOutputs` is still a proposed API, the Pyodide extension cannot do the right thing here.",
+      "line": 75
+    },
+    {
+      "file": "src/web/helpers.ts",
+      "description": "This file contains helper functions from the Jupyter extension for VS Code which convert between VS Code and Jupyter output types. Ideally these would be extracted out into an npm package for ease of reuse.",
+      "line": 1
+    }
+  ]
+}
