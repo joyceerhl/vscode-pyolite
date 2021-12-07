@@ -12,9 +12,9 @@ To build the extension and test it against github.dev:
 2. `npm i`
 3. `npm run watch-web`
 3. In one shell, `npm run serve`
-3. In another shell, `npm run localtunnel`
+3. In another shell, `npm run tunnel`
 3. Click on the local URL printed as a result of running `npm run localtunnel` and click 'Click to Continue'
-3. Navigate to a repository in `github.dev`
+3. Navigate to a repository in `vscode.dev`
 4. Ctrl+Shift+P > Install Web Extension > paste in the URL printed from running `npm run localtunnel`
 4. The Pyolite VS Code extension should be installed and ready for local testing! 
 
