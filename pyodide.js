@@ -1249,11 +1249,18 @@
   });
   //# sourceMappingURL=pyodide.js.map
   
+var trustedTypesPolicy = {
+  createScriptURL: value => value,
+  createScript: value => value
+};
 
-var trustedTypesPolicy = self.trustedTypes.createPolicy('default', {
-    createScriptURL: value => value,
-    createScript: value => value
-});      
+if (typeof self.trustedTypes !== 'undefined') {
+  trustedTypesPolicy = self.trustedTypes.createPolicy('default', {
+      createScriptURL: value => value,
+      createScript: value => value
+  });
+}
+
 fetch("https://cdn.jsdelivr.net/pyodide/v0.18.1/full/pyodide.js").then(async (pyodideScript) => {
     var text = await pyodideScript.text();
     self.eval(trustedTypesPolicy.createScript(text));
