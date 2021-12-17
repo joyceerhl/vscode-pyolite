@@ -4,6 +4,7 @@ All notable changes to the "vscode-pyodide" extension will be documented in this
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [Unreleased]
+## v0.0.11
 
-- Initial release
+### Fixes
+- Fix extension activation in Safari (thanks @[joaomoreno](https://github.com/joaomoreno))
