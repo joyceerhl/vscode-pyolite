@@ -1,6 +1,7 @@
 {
 	"name": "vscode-pyodide",
 	"displayName": "vscode-pyodide",
+  "icon": "assets/pyolite.png",
 	"repository": {
 		"url": "https://github.com/joyceerhl/vscode-pyolite"
 	},
